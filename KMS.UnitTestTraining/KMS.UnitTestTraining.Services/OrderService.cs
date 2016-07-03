@@ -1,16 +1,16 @@
-﻿using System;
+﻿using KMS.UnitTestTraining.Entities;
+using KMS.UnitTestTraining.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using KMS.UnitTestTraining.Entities;
-using KMS.UnitTestTraining.Repositories;
 
 namespace KMS.UnitTestTraining.Services
 {
     public class OrderService : IOrderService
     {
-        private decimal tax = 5M;
+        private decimal tax = 0.05M;
         private IOrderRepository orderRepo;
         private IOrderItemRepository orderItemRepo;
         private IProductRepository productRepo;
@@ -24,16 +24,16 @@ namespace KMS.UnitTestTraining.Services
 
         public void AddNewOrder(IList<Product> product)
         {
-            if(product == null || product.Count == 0)
+            if (product == null || product.Count == 0)
             {
-                throw new Exception("Product entities is empty");
+                throw new ArgumentException("Product entities is empty");
             }
 
             Order newOrder = new Order(1, 1, "123 Cong Hoa");
 
-            foreach(var productItem in product)
+            foreach (var productItem in product)
             {
-                OrderItem orderItem = new OrderItem(1, newOrder.OrderId, productItem.Id,1);
+                OrderItem orderItem = new OrderItem(1, newOrder.OrderId, productItem.Id, 1);
                 orderItemRepo.Insert(orderItem);
             }
         }
@@ -42,7 +42,7 @@ namespace KMS.UnitTestTraining.Services
         {
             if (orderId <= 0)
             {
-                throw new Exception("orderId is not valid");
+                throw new ArgumentException("orderId is not valid");
             }
 
             decimal total = 0;
@@ -50,10 +50,10 @@ namespace KMS.UnitTestTraining.Services
 
             foreach (var orderItem in orderItemList)
             {
-                if(orderItem.OrderId == orderId)
+                if (orderItem.OrderId == orderId)
                 {
                     var product = productRepo.GetProductById(orderItem.ProductId);
-                    if(product.Price > 50)
+                    if (product.Price > 50)
                     {
                         total += product.Price * tax * orderItem.Quantity;
                     }
@@ -67,14 +67,14 @@ namespace KMS.UnitTestTraining.Services
         {
             IList<Product> productList = new List<Product>();
 
-            if(orderId <= 0)
+            if (orderId <= 0)
             {
                 throw new ArgumentException("Order id is not valid");
             }
 
             var orderItemList = orderItemRepo.GetAll();
-            
-            foreach(var order in orderItemList)
+
+            foreach (var order in orderItemList)
             {
                 var product = productRepo.GetProductById(order.ProductId);
                 productList.Add(product);
@@ -87,29 +87,28 @@ namespace KMS.UnitTestTraining.Services
         {
             if (orderId <= 0)
             {
-                throw new Exception("orderID is not valid");
+                throw new ArgumentException("orderID is not valid");
             }
 
             if (productId <= 0)
             {
-                throw new Exception("productId is not valid");
+                throw new ArgumentException("productId is not valid");
             }
 
-            if (quantity <= 0)
+            if (quantity < 0)
             {
-                throw new Exception("quantity is not valid");
+                throw new ArgumentException("quantity is not valid");
             }
 
             var orderItemList = orderItemRepo.GetAll();
 
-            foreach(var orderItem in orderItemList)
+            foreach (var orderItem in orderItemList)
             {
-                if(orderItem.OrderId == orderId && orderItem.ProductId == productId)
+                if (orderItem.OrderId == orderId && orderItem.ProductId == productId)
                 {
-                   orderItem.Quantity = quantity;
+                    orderItem.Quantity = quantity;
                 }
             }
-
         }
     }
 }
