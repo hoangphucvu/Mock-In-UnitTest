@@ -2,9 +2,6 @@
 using KMS.UnitTestTraining.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KMS.UnitTestTraining.Services
 {
@@ -76,8 +73,11 @@ namespace KMS.UnitTestTraining.Services
 
             foreach (var order in orderItemList)
             {
-                var product = productRepo.GetProductById(order.ProductId);
-                productList.Add(product);
+                if (order.OrderId == orderId)
+                {
+                    var product = productRepo.GetProductById(order.ProductId);
+                    productList.Add(product);
+                }
             }
 
             return productList;
