@@ -14,65 +14,96 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
     [TestClass]
     public class OrderServiceTest
     {
+        private Mock<IOrderRepository> mockOrderRepository;
+        private Mock<IOrderItemRepository> mockOrderItemRepository;
+        private Mock<IProductRepository> mockProductRepository;
+
+        [TestInitialize]
+        public void CreateMock()
+        {
+            mockOrderRepository = new Mock<IOrderRepository>();
+            mockOrderItemRepository = new Mock<IOrderItemRepository>();
+            mockProductRepository = new Mock<IProductRepository>();
+        }
+
+        #region Constructor Test
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InitConstructor_Should_Throw_Exception_WhenCalledWithValid_MockOrderRepo()
+        {
+            var orderService = new OrderService(null, mockOrderItemRepository.Object, mockProductRepository.Object);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InitConstructor_Should_Throw_Exception_WhenCalledWithValid_MockOrderItemRepo()
+        {
+            var orderService = new OrderService(mockOrderRepository.Object, null, mockProductRepository.Object);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InitConstructor_Should_Throw_Exception_WhenCalledWithValid_MockProductRepo()
+        {
+            var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InitConstructor_Should_Throw_Exception_WhenCalledWithValid_MockRepo()
+        {
+            var orderService = new OrderService(null, null, null);
+        }
+
+        #endregion Constructor Test
+
         #region Add New Order Test
 
-        //[TestMethod]
-        //public void AddNewOrder_ShouldAddNewOrderCorrectly_WhenCalledWithValidParameters()
-        //{
-        //    //Arrange
-        //    Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-        //    Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-        //    Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
+        [TestMethod]
+        public void AddNewOrder_ShouldAddNewOrderCorrectly_WhenCalledWithValidParameters()
+        {
+            //Arrange
+            var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
-        //    var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
+            var products = new List<Product>()
+            {
+                new Product(1, "Product A", 40)
+            };
+            OrderItem orderItem = new OrderItem(1, 1, 1, 1);
+            mockOrderItemRepository.Setup(x => x.Insert(orderItem));
 
-        //    OrderItem orderItem1 = new OrderItem(1, 1, 1, 5);
-        //    OrderItem orderItem2 = new OrderItem(2, 2, 2, 3);
+            // Act
+            orderService.AddNewOrder(products);
 
-        //    var products = new List<Product>()
-        //    {
-        //        new Product(1, "Product A", 40M),
-        //        new Product(2, "Product B", 20M)
-        //    };
-        //    var productExpected = new Product(1, "Product A", 40M);
-        //    mockOrderItemRepository.Setup(x => x.Insert(orderItem1));
-        //    mockOrderItemRepository.Setup(x => x.Insert(orderItem2));
+            //Assert
 
-        //    // Act
-        //    orderService.AddNewOrder(products);
-
-        //    //Assert
-
-        //    Assert.AreEqual(productExpected.Name, products[0].Name);
-        //}
+            mockOrderItemRepository.Verify(x => x.Insert(It.Is<OrderItem>(
+            item => item.OrderId == orderItem.OrderId && item.OrderItemId == orderItem.OrderItemId
+            && item.ProductId == orderItem.ProductId && item.Quantity == orderItem.Quantity)), Times.Once);
+        }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void AddNewOrder_ShouldThrowException_WhenCalledWithInValidParameters()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
-
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
-            OrderItem orderItem1 = new OrderItem(1, 1, 1, 5);
-            OrderItem orderItem2 = new OrderItem(2, 1, 2, 3);
+            OrderItem firstOrderItem = new OrderItem(1, 1, 1, 5);
+            OrderItem secondOrderItem = new OrderItem(2, 1, 2, 3);
 
             var products = new List<Product>() { };
-            var productExpected = new Product(1, "Product A", 40M);
 
-            mockOrderItemRepository.Setup(x => x.Insert(orderItem1));
-            mockOrderItemRepository.Setup(x => x.Insert(orderItem2));
+            mockOrderItemRepository.Setup(x => x.Insert(firstOrderItem));
+            mockOrderItemRepository.Setup(x => x.Insert(secondOrderItem));
 
             // Act
             orderService.AddNewOrder(products);
 
             //Assert
-            mockOrderItemRepository.Verify(x => x.Insert(orderItem1), Times.Once);
-            mockOrderItemRepository.Verify(x => x.Insert(orderItem2), Times.Once);
-            Assert.AreEqual(0, products.Count);
+            mockOrderItemRepository.Verify(x => x.Insert(firstOrderItem), Times.Once);
+            mockOrderItemRepository.Verify(x => x.Insert(secondOrderItem), Times.Once);
         }
 
         #endregion Add New Order Test
@@ -84,10 +115,6 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void GetAllProductByOrderID_ShouldThrowException_WithInvalidParameters()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
-
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             //Act
@@ -100,21 +127,14 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void GetAllProductByOrderID_Should_Return_One_Product()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
-
             List<OrderItem> orderItemList = new List<OrderItem>();
-            var product1 = new Product(1, "Chair", 20);
-            var product2 = new Product(2, "Desk", 15);
-            var orderItem1 = new OrderItem(1, 1, 1, 1);
-            var orderItem2 = new OrderItem(2, 2, 2, 1);
+            var product = new Product(1, "Chair", 20);
+            var orderItem = new OrderItem(1, 1, 1, 1);
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
-            orderItemList.Add(orderItem1);
-            orderItemList.Add(orderItem2);
+            orderItemList.Add(orderItem);
 
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
-            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(product1);
+            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(product);
             //Act
 
             var result = orderService.GetAllProductByOrderId(1);
@@ -124,20 +144,46 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
             mockProductRepository.Verify(x => x.GetProductById(1), Times.AtLeastOnce);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual("Chair", product1.Name);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual("Chair", product.Name);
+        }
+
+        [TestMethod]
+        public void GetAllProductByOrderID_Should_Return_Two_Product()
+        {
+            //Arrange
+            List<OrderItem> orderItemList = new List<OrderItem>();
+            var firstProduct = new Product(1, "Chair", 20);
+            var secondProduct = new Product(2, "Desk", 15);
+            var firstOrderItem = new OrderItem(1, 1, 1, 1);
+            var secondOrderItem = new OrderItem(2, 1, 2, 1);
+            var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
+            orderItemList.Add(firstOrderItem);
+            orderItemList.Add(secondOrderItem);
+
+            mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
+            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(firstProduct);
+            //Act
+
+            var result = orderService.GetAllProductByOrderId(1);
+
+            //Assert
+            mockOrderItemRepository.Verify(x => x.GetAll(), Times.Once);
+            mockProductRepository.Verify(x => x.GetProductById(1), Times.AtLeastOnce);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("Chair", firstProduct.Name);
+            Assert.AreEqual("Desk", secondProduct.Name);
         }
 
         [TestMethod]
         public void GetAllProductByOrderID_Should_Return_EmptyList_WhenCallWithOrder_Has_No_Product_Item()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
-
             List<OrderItem> orderItemList = new List<OrderItem>();
-            var product1 = new Product(1, "Chair", 20);
-            var product2 = new Product(2, "Desk", 15);
+            var firstProduct = new Product(1, "Chair", 20);
+            var secondProduct = new Product(2, "Desk", 15);
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
             //Act
@@ -158,12 +204,9 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void UpdateProductQuantity_Should_ThrowException_With_Invalid_OrderId()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
+            var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             //Act
-            var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
             orderService.UpdateProductQuantity(0, 1, 4);
 
             //Assert
@@ -174,9 +217,6 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void UpdateProductQuantity_Should_ThrowException_With_Invalid_ProductId()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             //Act
@@ -189,18 +229,15 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void UpdateProductQuantity_Should_Return_Quantity_Equal_0()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             List<OrderItem> orderItemList = new List<OrderItem>();
             var product = new Product(1, "Chair", 20);
-            var orderItem1 = new OrderItem(1, 1, 1, 1);
-            var orderItem2 = new OrderItem(2, 2, 2, 1);
+            var firstOrderItem = new OrderItem(1, 1, 1, 1);
+            var secondOrderItem = new OrderItem(2, 2, 2, 1);
 
-            orderItemList.Add(orderItem1);
-            orderItemList.Add(orderItem2);
+            orderItemList.Add(firstOrderItem);
+            orderItemList.Add(secondOrderItem);
 
             //Act
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
@@ -208,7 +245,7 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
             orderService.UpdateProductQuantity(1, 1, 0);
 
             //Assert
-            Assert.AreEqual(0, orderItem1.Quantity);
+            Assert.AreEqual(0, firstOrderItem.Quantity);
         }
 
         [TestMethod]
@@ -216,18 +253,15 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void UpdateProductQuantity_Should_Throw_Exception_When_Quantity_Is_Smaller_Than_0()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             List<OrderItem> orderItemList = new List<OrderItem>();
             var product = new Product(1, "Chair", 20);
-            var orderItem1 = new OrderItem(1, 1, 1, 1);
-            var orderItem2 = new OrderItem(2, 2, 2, 1);
+            var firstOrderItem = new OrderItem(1, 1, 1, 1);
+            var secondOrderItem = new OrderItem(2, 2, 2, 1);
 
-            orderItemList.Add(orderItem1);
-            orderItemList.Add(orderItem2);
+            orderItemList.Add(firstOrderItem);
+            orderItemList.Add(secondOrderItem);
 
             //Act
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
@@ -241,17 +275,14 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void UpdateProductQuantity_Should_Not_Change_When_Update_With_Unchange_Value()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
             List<OrderItem> orderItemList = new List<OrderItem>();
             var product = new Product(1, "Chair", 20);
-            var orderItem1 = new OrderItem(1, 1, 1, 1);
-            var orderItem2 = new OrderItem(2, 2, 2, 1);
+            var firstOrderItem = new OrderItem(1, 1, 1, 1);
+            var secondOrderItem = new OrderItem(2, 2, 2, 1);
 
-            orderItemList.Add(orderItem1);
-            orderItemList.Add(orderItem2);
+            orderItemList.Add(firstOrderItem);
+            orderItemList.Add(secondOrderItem);
 
             //Act
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
@@ -259,24 +290,21 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
             orderService.UpdateProductQuantity(1, 1, 1);
 
             //Assert
-            Assert.AreEqual(1, orderItem1.Quantity);
+            Assert.AreEqual(1, firstOrderItem.Quantity);
         }
 
         [TestMethod]
         public void UpdateProductQuantity_Should_Return_New_Quantity_With_Valid_Quantity_Number()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
             List<OrderItem> orderItemList = new List<OrderItem>();
             var product = new Product(1, "Chair", 20);
-            var orderItem1 = new OrderItem(1, 1, 1, 1);
-            var orderItem2 = new OrderItem(2, 2, 2, 1);
+            var firstOrderItem = new OrderItem(1, 1, 1, 1);
+            var secondOrderItem = new OrderItem(2, 2, 2, 1);
 
-            orderItemList.Add(orderItem1);
-            orderItemList.Add(orderItem2);
+            orderItemList.Add(firstOrderItem);
+            orderItemList.Add(secondOrderItem);
 
             //Act
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
@@ -284,7 +312,7 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
             orderService.UpdateProductQuantity(1, 1, 4);
 
             //Assert
-            Assert.AreEqual(4, orderItem1.Quantity);
+            Assert.AreEqual(4, firstOrderItem.Quantity);
         }
 
         #endregion Update Product Quantity with OrderID
@@ -296,9 +324,6 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         public void CalculateFinalPrice_Should_Throw_Exception_When_OrderId_Invalid()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             //Act
@@ -308,27 +333,20 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         }
 
         [TestMethod]
-        public void CalculateFinalPrice_Return_Corret_Result()
+        public void CalculateFinalPrice_For_One_Product_Return_Corret_Result()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             List<OrderItem> orderItemList = new List<OrderItem>();
-            var product1 = new Product(1, "Chair", 60);
-            var product2 = new Product(2, "Desk", 20);
-            var orderItem1 = new OrderItem(1, 1, 1, 2);
-            var orderItem2 = new OrderItem(2, 2, 2, 1);
+            var product = new Product(1, "Chair", 60);
+            var orderItem = new OrderItem(1, 1, 1, 2);
 
-            orderItemList.Add(orderItem1);
-            orderItemList.Add(orderItem2);
+            orderItemList.Add(orderItem);
 
             //Act
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
-            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(product1);
-            mockProductRepository.Setup(x => x.GetProductById(2)).Returns(product2);
+            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(product);
             var total = orderService.CalculateFinalPrice(1);
 
             //Assert
@@ -336,24 +354,43 @@ namespace Tests.Unit.KMS.UnitTestTraining.Services
         }
 
         [TestMethod]
-        public void CalculateFinalPrice_When_OrderId_Greater_Than_0_But_OrderItemList_Not_Exists()
+        public void CalculateFinalPrice_For_Two_Product_Return_Corret_Result()
         {
             //Arrange
-            Mock<IOrderRepository> mockOrderRepository = new Mock<IOrderRepository>();
-            Mock<IOrderItemRepository> mockOrderItemRepository = new Mock<IOrderItemRepository>();
-            Mock<IProductRepository> mockProductRepository = new Mock<IProductRepository>();
             var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
 
             List<OrderItem> orderItemList = new List<OrderItem>();
-            var product1 = new Product(1, "Chair", 60);
-            var product2 = new Product(2, "Desk", 20);
-            var orderItem1 = new OrderItem(1, 1, 1, 2);
-            var orderItem2 = new OrderItem(2, 2, 2, 1);
+            var firstProduct = new Product(1, "Chair", 60);
+            var secondProduct = new Product(2, "Desk", 20);
+            var firstOrderItem = new OrderItem(1, 1, 1, 2);
+            var secondOrderItem = new OrderItem(2, 1, 2, 2);
+            orderItemList.Add(firstOrderItem);
+            orderItemList.Add(secondOrderItem);
+            //Act
+            mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
+            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(firstProduct);
+            mockProductRepository.Setup(x => x.GetProductById(2)).Returns(secondProduct);
+            var total = orderService.CalculateFinalPrice(1);
+            //Assert
+            Assert.AreEqual(166, total);
+        }
+
+        [TestMethod]
+        public void CalculateFinalPrice_When_OrderId_Greater_Than_0_But_OrderItemList_Not_Exists()
+        {
+            //Arrange
+            var orderService = new OrderService(mockOrderRepository.Object, mockOrderItemRepository.Object, mockProductRepository.Object);
+
+            List<OrderItem> orderItemList = new List<OrderItem>();
+            var firstProduct = new Product(1, "Chair", 60);
+            var secondProduct = new Product(2, "Desk", 20);
+            var firstOrderItem = new OrderItem(1, 1, 1, 2);
+            var secondOrderItem = new OrderItem(2, 2, 2, 1);
             //not add to orderItem list
             //Act
             mockOrderItemRepository.Setup(x => x.GetAll()).Returns(orderItemList);
-            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(product1);
-            mockProductRepository.Setup(x => x.GetProductById(2)).Returns(product2);
+            mockProductRepository.Setup(x => x.GetProductById(1)).Returns(firstProduct);
+            mockProductRepository.Setup(x => x.GetProductById(2)).Returns(secondProduct);
             var total = orderService.CalculateFinalPrice(1);
 
             //Assert

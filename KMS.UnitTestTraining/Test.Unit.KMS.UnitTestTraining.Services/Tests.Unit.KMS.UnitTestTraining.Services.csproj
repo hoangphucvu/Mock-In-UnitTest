@@ -60,12 +60,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="OrderItemTest.cs" />
     <Compile Include="OrderServiceTest.cs" />
     <Compile Include="ProductServiceTest.cs" />
-    <Compile Include="ProductTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="OrderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KMS.UnitTestTraining.Entities\KMS.UnitTestTraining.Entities.csproj">

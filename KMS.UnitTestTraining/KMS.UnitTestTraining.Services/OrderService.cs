@@ -8,15 +8,30 @@ namespace KMS.UnitTestTraining.Services
     public class OrderService : IOrderService
     {
         private decimal tax = 0.05M;
-        private IOrderRepository orderRepo;
-        private IOrderItemRepository orderItemRepo;
-        private IProductRepository productRepo;
+        private IOrderRepository orderRepository;
+        private IOrderItemRepository orderItemRepository;
+        private IProductRepository productRepository;
 
         public OrderService(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IProductRepository productRepository)
         {
-            orderRepo = orderRepository;
-            orderItemRepo = orderItemRepository;
-            productRepo = productRepository;
+            if (orderRepository == null)
+            {
+                throw new ArgumentNullException("orderRepository params it not allow to null");
+            }
+
+            if (orderItemRepository == null)
+            {
+                throw new ArgumentNullException("orderItemRepository params it not allow to null");
+            }
+
+            if (productRepository == null)
+            {
+                throw new ArgumentNullException("productRepository params it not allow to null");
+            }
+
+            this.orderRepository = orderRepository;
+            this.orderItemRepository = orderItemRepository;
+            this.productRepository = productRepository;
         }
 
         public void AddNewOrder(IList<Product> product)
@@ -31,7 +46,7 @@ namespace KMS.UnitTestTraining.Services
             foreach (var productItem in product)
             {
                 OrderItem orderItem = new OrderItem(1, newOrder.OrderId, productItem.Id, 1);
-                orderItemRepo.Insert(orderItem);
+                orderItemRepository.Insert(orderItem);
             }
         }
 
@@ -43,14 +58,15 @@ namespace KMS.UnitTestTraining.Services
             }
 
             decimal total = 0;
-            var orderItemList = orderItemRepo.GetAll();
+            int range = 50;
+            var orderItemList = orderItemRepository.GetAll();
 
             foreach (var orderItem in orderItemList)
             {
                 if (orderItem.OrderId == orderId)
                 {
-                    var product = productRepo.GetProductById(orderItem.ProductId);
-                    if (product.Price > 50)
+                    var product = productRepository.GetProductById(orderItem.ProductId);
+                    if (product.Price > range)
                     {
                         total += product.Price * tax * orderItem.Quantity;
                     }
@@ -69,13 +85,13 @@ namespace KMS.UnitTestTraining.Services
                 throw new ArgumentException("Order id is not valid");
             }
 
-            var orderItemList = orderItemRepo.GetAll();
+            var orderItemList = orderItemRepository.GetAll();
 
             foreach (var order in orderItemList)
             {
                 if (order.OrderId == orderId)
                 {
-                    var product = productRepo.GetProductById(order.ProductId);
+                    var product = productRepository.GetProductById(order.ProductId);
                     productList.Add(product);
                 }
             }
@@ -100,7 +116,7 @@ namespace KMS.UnitTestTraining.Services
                 throw new ArgumentException("quantity is not valid");
             }
 
-            var orderItemList = orderItemRepo.GetAll();
+            var orderItemList = orderItemRepository.GetAll();
 
             foreach (var orderItem in orderItemList)
             {
