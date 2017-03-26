@@ -3,14 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using FizzBuzzMVC.Models;
 
 namespace FizzBuzzMVC.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        private Repository repository;
+
+        public HomeController(Repository repository)
         {
-            return View();
+            this.repository = repository;
+        }
+
+        public HomeController()
+        {
+            this.repository = new WorkingProductRepository();
+        }
+        public ViewResult Index()
+        {
+            var products = repository.GetAll();
+            return View(products);
         }
 
         public ActionResult About()

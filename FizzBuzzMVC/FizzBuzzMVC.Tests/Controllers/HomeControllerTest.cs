@@ -6,6 +6,8 @@ using System.Web.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FizzBuzzMVC;
 using FizzBuzzMVC.Controllers;
+using FizzBuzzMVC.Models;
+using Telerik.JustMock;
 
 namespace FizzBuzzMVC.Tests.Controllers
 {
@@ -19,7 +21,7 @@ namespace FizzBuzzMVC.Tests.Controllers
             ViewResult result = controller.Index(1) as ViewResult;
             string expected = "1";
             string actual = result.ViewBag.Output;
-            Assert.AreEqual(expected,actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -91,6 +93,27 @@ namespace FizzBuzzMVC.Tests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void Index_Returns_All_Products_In_DB()
+        {
+            //Arrange
+            var productRepository = Mock.Create<Repository>();
+            Mock.Arrange(() => productRepository.GetAll()).
+                Returns(new List<Product>
+            {
+                new Product {Genre = "Fiction", Id = 1, Name = "Mody Dick", Price = 12.50m},
+                new Product {Genre = "Fiction", Id = 2, Name = "Walter", Price = 15.50m},
+            }).MustBeCalled();
+
+            //Act
+            HomeController controller = new HomeController(productRepository);
+            ViewResult viewResult = controller.Index();
+            var model = viewResult.Model as IEnumerable<Product>;
+
+            //Assert 
+            Assert.AreEqual(2,model.Count());
         }
     }
 }
