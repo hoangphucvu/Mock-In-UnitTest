@@ -26,6 +26,12 @@ namespace FizzBuzzMVC.Controllers
             return View(products);
         }
 
+        public ViewResult FindByGenre(string genre)
+        {
+            var products = repository.GetAll();
+            List<Product> results = products.Where(x => x.Genre == genre).ToList();
+            return View(results);
+        }
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";

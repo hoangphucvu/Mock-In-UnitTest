@@ -96,6 +96,29 @@ namespace FizzBuzzMVC.Tests.Controllers
         }
 
         [TestMethod]
+        public void FindByGenreReturnsAllGenre()
+        { 
+            //Arrange
+            var productRepository = Mock.Create<Repository>();
+            Mock.Arrange(() => productRepository.GetAll()).
+               Returns(new List<Product>
+           {
+                new Product {Genre = "Fiction", Id = 1, Name = "Mody Dick", Price = 12.50m},
+                new Product {Genre = "Fiction", Id = 2, Name = "Walter", Price = 15.50m},
+                new Product {Genre = "Non Fiction", Id = 3, Name = "Chemi", Price = 15.50m},
+           }).MustBeCalled();
+
+            HomeController controller = new HomeController(productRepository);
+            ViewResult viewResult = controller.FindByGenre("Fiction");
+            var model = viewResult.Model as IEnumerable<Product>;
+
+            //Assert
+            Assert.AreEqual(2,model.Count());
+            Assert.AreEqual("Mody Dick", model.ToList()[0].Name);
+            Assert.AreEqual("Walter", model.ToList()[1].Name);
+        }
+
+        [TestMethod]
         public void Index_Returns_All_Products_In_DB()
         {
             //Arrange
