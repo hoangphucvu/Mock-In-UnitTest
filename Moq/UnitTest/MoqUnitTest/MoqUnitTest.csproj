@@ -152,6 +152,7 @@
     <Compile Include="Test\Demo1\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo2\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo3\CustomerServicesTest.cs" />
+    <Compile Include="Test\Demo7\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo6\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo5\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo4\CustomerServicesTest.cs" />
