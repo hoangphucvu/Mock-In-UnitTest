@@ -11,7 +11,7 @@ namespace MoqUnitTest.Test.Demo3
         //this shows how setting the return value will change the execution flow
         [TestMethod]
         [ExpectedException(typeof(InvalidCustomerMailingAddressException))]
-        public void An_exception_should_be_thrown_if_the_address_is_not_created()
+        public void An_Exception_Should_Be_Thrown_If_The_Address_Is_Not_Created()
         {
             //Arrange
             var customerToCreateDto = new CustomerToCreateDto
@@ -34,7 +34,7 @@ namespace MoqUnitTest.Test.Demo3
         }
 
         [TestMethod]
-        public void the_customer_should_be_saved_if_the_address_was_created()
+        public void The_Customer_Should_Be_Saved_If_The_Address_Was_Created()
         {
             //Arrange
             var customerToCreateDto = new CustomerToCreateDto { FirstName = "Bob", LastName = "Builder" };

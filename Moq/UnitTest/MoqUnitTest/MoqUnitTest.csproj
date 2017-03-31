@@ -152,11 +152,14 @@
     <Compile Include="Test\Demo1\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo2\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo3\CustomerServicesTest.cs" />
+    <Compile Include="Test\Demo5\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo4\CustomerServicesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

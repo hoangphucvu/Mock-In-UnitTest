@@ -10,7 +10,7 @@ namespace MoqUnitTest.Test.Demo2
     {
         //shows how to verify that a method was called an explicit number of times
         [TestMethod]
-        public void The_customer_repository_should_be_called_once_per_customer()
+        public void The_Customer_Repository_Should_Be_Called_Once_Per_Customer()
         {
             //Arrange
             var listOfCustomerDtos = new List<CustomerToCreateDto>
