@@ -6,7 +6,7 @@
         private readonly ICustomerFullNameBuilder _customerFullName;
 
         public CustomerService(
-            ICustomerRepository customerRepository, 
+            ICustomerRepository customerRepository,
             ICustomerFullNameBuilder customerFullName)
         {
             _customerRepository = customerRepository;
@@ -16,7 +16,7 @@
         public void Create(CustomerToCreateDto customerToCreateDto)
         {
             var fullName = _customerFullName.From(
-                customerToCreateDto.FirstName, 
+                customerToCreateDto.FirstName,
                 customerToCreateDto.LastName);
 
             var customer = new Customer(fullName);
