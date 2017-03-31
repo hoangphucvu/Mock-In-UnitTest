@@ -1,15 +1,15 @@
 ﻿using Moq;
 using MoqUnitTest.Code.Demo02;
-using NUnit.Framework;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MoqUnitTest.Test.Demo2
 {
-    [TestFixture]
+    [TestClass]
     public class CustomerServicesTest
     {
         //shows how to verify that a method was called an explicit number of times
-        [Test]
+        [TestMethod]
         public void The_customer_repository_should_be_called_once_per_customer()
         {
             //Arrange

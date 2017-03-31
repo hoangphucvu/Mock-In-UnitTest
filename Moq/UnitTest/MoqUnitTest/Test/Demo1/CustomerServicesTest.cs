@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MoqUnitTest.Code.Demo01;
-using NUnit.Framework;
+
 
 namespace MoqUnitTest.Test.Demo1
 {
-    [TestFixture]
+    [TestClass]
     public class CustomerServicesTest
     {
-        [Test]
+        [TestMethod]
         public void The_Repository_Save_Should_Be_Call()
         {
             //Arrange
