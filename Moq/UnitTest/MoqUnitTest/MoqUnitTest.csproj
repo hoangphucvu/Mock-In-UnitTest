@@ -149,6 +149,7 @@
     <Compile Include="Code\Demo18\Customer.cs" />
     <Compile Include="Code\Demo18\CustomerNameFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test\Demo11\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo1\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo2\CustomerServicesTest.cs" />
     <Compile Include="Test\Demo3\CustomerServicesTest.cs" />
